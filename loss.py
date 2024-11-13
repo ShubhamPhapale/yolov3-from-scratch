@@ -5,8 +5,8 @@ from utils import intersection_over_union
 
 class YoloLoss(nn.Module):
     def __init__(self):
-        super(YoloLoss, self).__init__()
-        self.mse = nn.MSELoss(reduction="sum")
+        super().__init__()
+        self.mse = nn.MSELoss()
         self.bce = nn.BCEWithLogitsLoss()
         self.entropy = nn.CrossEntropyLoss() # only have one class, so no need to specify class
         self.sigmoid = nn.Sigmoid()

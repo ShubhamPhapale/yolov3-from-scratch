@@ -86,7 +86,7 @@ class YOLOv3(nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
-        self.layers = self._create_conv_layers(in_channels, num_classes)
+        self.layers = self._create_conv_layers()
 
     def forward(self, x):
         outputs = []
@@ -103,8 +103,9 @@ class YOLOv3(nn.Module):
                 route_connections.pop()
         return outputs
 
-    def _create_conv_layers(self, in_channels, num_classes):
+    def _create_conv_layers(self):
         layers = nn.ModuleList()
+        in_channels = self.in_channels
         for module in config:
             if isinstance(module, tuple):
                 out_channels, kernel_size, stride = module
@@ -122,7 +123,7 @@ class YOLOv3(nn.Module):
                     layers += [
                         ResidualBlock(in_channels, use_residual=False, num_repeats=1),
                         CNNBlock(in_channels, in_channels//2, kernel_size=1),
-                        ScalePrediction(in_channels//2, num_classes)
+                        ScalePrediction(in_channels//2, num_classes=self.num_classes)
                     ]
                     in_channels = in_channels // 2
                 elif module == "U":
@@ -138,5 +139,25 @@ def test():
     print(model)
     print("Model is working!")
 
+# if __name__ == "__main__":
+#     test()
+
 if __name__ == "__main__":
-    test()
+
+    num_classes = 20
+
+    IMAGE_SIZE = 416
+
+    model = YOLOv3(num_classes=num_classes)
+
+    x = torch.randn((2, 3, IMAGE_SIZE, IMAGE_SIZE))
+
+    out = model(x)
+
+    assert model(x)[0].shape == (2, 3, IMAGE_SIZE//32, IMAGE_SIZE//32, num_classes + 5)
+
+    assert model(x)[1].shape == (2, 3, IMAGE_SIZE//16, IMAGE_SIZE//16, num_classes + 5)
+
+    assert model(x)[2].shape == (2, 3, IMAGE_SIZE//8, IMAGE_SIZE//8, num_classes + 5)
+
+    print("Success!")

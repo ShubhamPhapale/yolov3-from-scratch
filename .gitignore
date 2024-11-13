@@ -1,2 +1,4 @@
 venv/
 PASCAL_VOC/
+__pycache__/
+yolov3/
