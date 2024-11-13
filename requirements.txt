@@ -1,2 +1,7 @@
 torch
 numpy
+pandas
+pillow
+matplotlib
+tqdm
+albumentations
